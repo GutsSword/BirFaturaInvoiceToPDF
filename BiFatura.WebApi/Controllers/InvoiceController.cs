@@ -131,11 +131,12 @@ namespace BiFatura.WebApi.Controllers
                 Document document = new Document(pageSize: PageSize.A4, 25, 25, 30, 30);
                 PdfWriter writer = PdfWriter.GetInstance(document, stream);
                 writer.CloseStream = false;
+                float sum=0;
 
                 document.Open();
                 // Birfatura logo
-                string logoPath = Path.Combine(Directory.GetCurrentDirectory(),"images", "channels4_profile.jpg");
-                Image birFaturaLogo = Image.GetInstance(logoPath); birFaturaLogo.ScaleToFit(50f, 50f);
+                string logoPath = Path.Combine(Directory.GetCurrentDirectory(),"images", "images.png");
+                Image birFaturaLogo = Image.GetInstance(logoPath); birFaturaLogo.ScaleToFit(200f, 200f);
                 birFaturaLogo.Alignment = Element.ALIGN_LEFT;
                 document.Add(birFaturaLogo);
 
@@ -175,7 +176,7 @@ namespace BiFatura.WebApi.Controllers
                 productTable.AddCell("Ürün ID");
                 productTable.AddCell("Ürün Adı");
                 productTable.AddCell("Stok Kodu");
-                productTable.AddCell("Satıs Adedi");
+                productTable.AddCell("Satis Adedi");
                 productTable.AddCell("KDV Oranı");
                 productTable.AddCell("KDV Dahil Birim Fiyatı");
 
@@ -187,9 +188,15 @@ namespace BiFatura.WebApi.Controllers
                     productTable.AddCell(saleProduct.SatisAdeti);
                     productTable.AddCell(saleProduct.KDVOrani);
                     productTable.AddCell(saleProduct.KDVDahilBirimFiyati);
+                    sum += float.Parse(saleProduct.KDVDahilBirimFiyati) * float.Parse(saleProduct.SatisAdeti);
                 }
 
                 document.Add(productTable);
+                document.Add(new Paragraph("\n"));
+
+                var sumText = new Paragraph($"KDV Dahil Toplam Tutar: {sum} TL") { Alignment = Element.ALIGN_RIGHT };
+                document.Add(sumText);
+
                 document.Close();
 
                 stream.Position = 0;
