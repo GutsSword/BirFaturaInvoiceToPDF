@@ -1,0 +1,88 @@
+﻿@using BiFatura.WebUI.Models
+@model List<InvoiceViewModel>
+@{
+    ViewData["Title"] = "Fatura Listesi";
+}
+
+<div class="container mt-5">
+    <h1 class="text-center mb-4 text-primary">📜 Fatura Listesi</h1>
+
+    <div class="table-responsive shadow-lg p-3 mb-5 bg-white rounded">
+        <table class="table table-hover align-middle">
+            <thead class="table-dark text-center">
+                <tr>
+                    <th>#</th>
+                    <th>Müşteri Adı</th>
+                    <th>Adresi</th>
+                    <th>Telefon</th>
+                    <th>Şehir</th>
+                    <th>TCVKN</th>
+                    <th>Vergi Dairesi</th>
+                    <th>Satılan Ürünler</th>
+                    <th>İşlemler</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var invoice in Model)
+                {
+                    <tr>
+                        <td>@invoice.FaturaID</td>
+                        <td>@invoice.MusteriAdi</td>
+                        <td>@invoice.MusteriAdresi</td>
+                        <td>@invoice.MusteriTel</td>
+                        <td>@invoice.MusteriSehir</td>
+                        <td>@invoice.MusteriTCVKN</td>
+                        <td>@invoice.MusteriVergiDairesi</td>
+                        <td>
+
+                            <button class="btn btn-info" data-bs-toggle="modal" data-bs-target="#urunModal-@invoice.FaturaID">
+                                Ürünleri Göster
+                            </button>
+
+                            <div class="modal fade" id="urunModal-@invoice.FaturaID" tabindex="-1" aria-labelledby="urunModalLabel-@invoice.FaturaID" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="urunModalLabel-@invoice.FaturaID">Satılan Ürünler</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <ul class="list-group">
+                                                @if (!@invoice.SatilanUrunler.Any())
+                                                {
+                                                    <li>Ürün Bilgisileri bulunmamaktadır.</li>
+                                                }
+                                                else
+                                                {
+                                                    @foreach (var item in invoice.SatilanUrunler)
+                                                    {
+                                                        <li class="list-group-item">
+                                                            <strong>ID: @item.UrunID</strong>
+                                                            <br />
+                                                            <strong>Urun Adı: @item.UrunAdi</strong>
+                                                            <br /> Stok Kodu: @item.StokKodu
+                                                            <br /> Satış Adedi: <span class="badge bg-success">@item.SatisAdeti Adet</span>
+                                                            <br /> KDV Oranı: @item.KDVOrani
+                                                            <br /> KDV Dahil Fiyat: @item.KDVDahilBirimFiyati ₺
+                                                        </li>
+                                                    }
+                                                }
+
+                                            </ul>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <a href="/Home/ConvertToPdf/@invoice.FaturaID" class="btn btn-danger">PDF'e çevir</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
