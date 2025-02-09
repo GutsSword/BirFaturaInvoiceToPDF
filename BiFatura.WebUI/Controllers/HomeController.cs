@@ -48,7 +48,7 @@ namespace BiFatura.WebUI.Controllers
 
             if (!request.IsSuccessStatusCode)
             {
-                return BadRequest();
+                return BadRequest(request.Content);
             }
 
             var response = await request.Content.ReadFromJsonAsync<List<InvoiceViewModel>>();
@@ -68,7 +68,7 @@ namespace BiFatura.WebUI.Controllers
             var response = await _httpClient.PostAsync($"http://localhost:5136/api/Invoice/ConvertToPdf?id={id}", default);
 
             var pdfBytes = await response.Content.ReadAsByteArrayAsync();
-            return File(pdfBytes, "application/pdf", $"BirFatura-{Guid.NewGuid()}.pdf");
+            return File(pdfBytes, MediaTypeNames.Application.Pdf , $"BirFatura-{Guid.NewGuid()}.pdf");
         }
     }
 }

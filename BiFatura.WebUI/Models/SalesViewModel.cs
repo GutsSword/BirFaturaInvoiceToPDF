@@ -1,6 +1,6 @@
 ﻿namespace BiFatura.WebUI.Models
 {
-    public sealed record SalesViewModel
+    public sealed class SalesViewModel
     {
         public int UrunID { get; set; }
         public string UrunAdi { get; set; }

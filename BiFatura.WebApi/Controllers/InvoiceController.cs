@@ -1,11 +1,13 @@
 ﻿using BiFatura.WebApi.Models;
 using iTextSharp.text;
 using iTextSharp.text.pdf;
+using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Globalization;
 using System.Net.Http.Headers;
+using System.Net.Mime;
 using System.Reflection.Metadata.Ecma335;
 using System.Text;
 using System.Text.Json;
@@ -18,12 +20,10 @@ namespace BiFatura.WebApi.Controllers
     {
         private readonly HttpClient _httpClient;
         public static List<Invoice>? _invoiceList;
-        public readonly IWebHostEnvironment _webHostEnvironment;
 
-        public InvoiceController(HttpClient httpClient, IWebHostEnvironment webHostEnvironment)
+        public InvoiceController(HttpClient httpClient)
         {
             _httpClient = httpClient;
-            _webHostEnvironment = webHostEnvironment;
         }
         private const string grant_type = "grant_type";
         private const string grant_type_password = "password";
@@ -108,7 +108,12 @@ namespace BiFatura.WebApi.Controllers
                 }
             }
 
-            var invoice = _invoiceList.Where(x => x.FaturaID == id).FirstOrDefault();
+            var invoice = _invoiceList?.Where(x => x.FaturaID == id).FirstOrDefault();
+
+            if(_invoiceList == null)
+            {
+                return NotFound($"ID={id} fatura bulunamadı.");
+            }
 
             var pdfStream = CreatePdf(invoice);
 
@@ -117,10 +122,8 @@ namespace BiFatura.WebApi.Controllers
                 return BadRequest("PDF Oluşturulamadı.");
             }
 
-            return File(pdfStream, "application/pdf", $"BirFatura_{Guid.NewGuid()}.pdf");
-
+            return File(pdfStream, MediaTypeNames.Application.Pdf, $"BirFatura_{Guid.NewGuid()}.pdf");
         }
-
 
 
         private MemoryStream CreatePdf(Invoice invoice)
@@ -136,7 +139,7 @@ namespace BiFatura.WebApi.Controllers
                 document.Open();
                 // Birfatura logo
                 string logoPath = Path.Combine(Directory.GetCurrentDirectory(),"images", "images.png");
-                Image birFaturaLogo = Image.GetInstance(logoPath); birFaturaLogo.ScaleToFit(200f, 200f);
+                Image birFaturaLogo = Image.GetInstance(logoPath); birFaturaLogo.ScaleToFit(150f, 150f);
                 birFaturaLogo.Alignment = Element.ALIGN_LEFT;
                 document.Add(birFaturaLogo);
 
@@ -201,7 +204,6 @@ namespace BiFatura.WebApi.Controllers
 
                 stream.Position = 0;
                 return stream;
-
             }
 
             catch (Exception)

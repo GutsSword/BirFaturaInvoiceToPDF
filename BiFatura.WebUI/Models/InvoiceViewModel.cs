@@ -1,6 +1,6 @@
 ﻿namespace BiFatura.WebUI.Models
 {
-    public sealed record InvoiceViewModel
+    public sealed class InvoiceViewModel
     {
         public int FaturaID { get; set; }
         public string MusteriAdi { get; set; }
